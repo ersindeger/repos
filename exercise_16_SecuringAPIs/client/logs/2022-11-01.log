@@ -1,0 +1,2 @@
+2022-11-01T00:09:07.5628174 I/O error on GET request for "http://localhost:8080/auctions/": Connection refused: connect; nested exception is java.net.ConnectException: Connection refused: connect
+2022-11-01T00:09:47.036191 I/O error on GET request for "http://localhost:8080/auctions/": Connection refused: connect; nested exception is java.net.ConnectException: Connection refused: connect
