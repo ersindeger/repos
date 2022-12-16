@@ -1,0 +1,204 @@
+-- 3. For all actors with the last name of "Jones", display the actor's name and movie titles they appeared in. 
+-- Order the results by the actor names (A-Z) and then by movie title (A-Z). 
+-- (48 rows)
+
+select * from person
+where person_name LIKE '%Jones';
+
+SELECT *
+from person
+JOIN movie_actor ON person.person_id = movie_actor.actor_id
+WHERE person.person_name LIKE '%Jones';
+
+SELECT person.person_name, title
+FROM person
+JOIN movie_actor ON person.person_id = movie_actor.actor_id
+JOIN movie ON movie_actor.movie_id = movie.movie_id
+WHERE person.person_name LIKE '%Jones' 
+ORDER by person_name ASC, title ASC
+LIMIT 48;
+
+-- 4. The titles and taglines of all the movies that are in the Fantasy genre. 
+-- Order the results by title (A-Z).
+-- (81 rows)
+
+SELECT movie.title, movie.tagline
+FROM movie
+JOIN movie_genre ON movie.movie_id = movie_genre.movie_id
+JOIN genre ON movie_genre.genre_id = genre.genre_id
+WHERE genre.genre_name LIKE '%Fantasy%'
+ORDER by title ASC
+
+-- 5. The titles and release dates of all the movies that are in the Comedy genre. 
+-- Order the results by release date, earliest to latest. 
+-- (220 rows)
+SELECT movie.title, movie.release_date
+FROM movie
+JOIN movie_genre ON movie.movie_id = movie_genre.movie_id
+JOIN genre ON movie_genre.genre_id = genre.genre_id
+WHERE genre.genre_name LIKE '%Comedy%'
+ORDER by release_date ASC;
+
+-- 6. The genres of "The Wizard of Oz" sorted in alphabetical order (A-Z).
+-- (3 rows)
+SELECT genre.genre_name
+FROM genre
+JOIN movie_genre ON genre.genre_id = movie_genre.genre_id
+JOIN movie ON movie_genre.movie_id = movie.movie_id
+WHERE movie.title LIKE '%The Wizard of Oz'
+ORDER by genre_name ASC;
+
+-- 7. The genres of movies that Christopher Lloyd has appeared in, sorted alphabetically.
+-- (8 rows) Hint: DISTINCT will prevent duplicate values in your query results.
+SELECT DISTINCT genre.genre_name
+FROM genre
+JOIN movie_genre ON genre.genre_id = movie_genre.genre_id
+JOIN movie ON movie_genre.movie_id = movie.movie_id
+JOIN movie_actor ON movie_actor.movie_id = movie.movie_id
+JOIN person ON movie_actor.actor_id = person.person_id
+WHERE person.person_name = 'Christopher Lloyd'
+ORDER by genre_name ASC;
+
+-- 8. The genres of movies that Robert De Niro has appeared in that were released in 2010 or later,
+-- sorted alphabetically.  (6 rows)
+SELECT genre_name
+FROM genre
+JOIN movie_genre ON genre.genre_id = movie_genre.genre_id
+JOIN movie ON movie_genre.movie_id = movie.movie_id
+JOIN movie_actor ON movie_actor.movie_id = movie.movie_id
+JOIN person ON movie_actor.actor_id = person.person_id
+WHERE person_name LIKE 'Robert De Niro' AND movie.release_date  > '01/01/2010'
+ORDER by genre_name ASC;
+
+-- 9. The titles of movies directed by James Cameron, sorted alphabetically.
+-- (6 rows)
+SELECT title
+FROM movie
+JOIN person ON person.person_id = movie.director_id
+WHERE person_name LIKE 'James Cameron'
+ORDER by title ASC;
+
+-- 10. The names of directors who have directed a movie over 3 hours [180 minutes], sorted alphabetically.
+-- (15 rows)
+SELECT DISTINCT person_name
+FROM person 
+JOIN movie ON person.person_id = movie.director_id
+WHERE movie.length_minutes > 180
+ORDER by person_name ASC;
+
+-- 11. The titles of the movies in the "Star Wars Collection" ordered by release date, most recent first. 
+-- (9 rows)
+SELECT title
+FROM movie
+JOIN collection ON movie.collection_id = collection.collection_id
+WHERE collection_name LIKE 'Star Wars Collection'
+ORDER by release_date DESC;
+
+-- 12. The titles of the movies in the "Star Wars Collection" that weren't directed by George Lucas, 
+-- sorted alphabetically. (5 rows)
+SELECT title
+FROM movie
+JOIN collection ON movie.collection_id = collection.collection_id
+JOIN person ON person.person_id = movie.director_id
+WHERE collection_name LIKE 'Star Wars Collection' AND person_name != 'George Lucas'
+ORDER by title ASC;
+
+-- 13. The directors of the movies in the "Harry Potter Collection", sorted alphabetically.
+-- (4 rows)
+SELECT DISTINCT person_name
+FROM person
+JOIN movie ON movie.director_id = person.person_id
+JOIN collection ON collection.collection_id = movie.collection_id
+WHERE collection.collection_name LIKE 'Harry Potter Collection'
+ORDER by person_name ASC;
+
+-- 14. The names of actors who've appeared in the movies in the "Back to the Future Collection", sorted alphabetically.
+-- (28 rows)
+SELECT DISTINCT person_name
+FROM person
+JOIN movie_actor ON movie_actor.actor_id = person.person_id
+JOIN movie ON movie_actor.movie_id = movie.movie_id
+JOIN collection ON collection.collection_id = movie.collection_id
+WHERE collection.collection_name LIKE 'Back to the Future Collection'
+ORDER by person_name ASC;
+
+-- 15. The title of the movie and the name of director for movies 
+-- where the director was also an actor in the same movie. Order the results by movie title (A-Z)
+-- (73 rows)
+SELECT DISTINCT person.person_name, movie.title
+FROM movie
+JOIN movie_actor ON movie.movie_id = movie_actor.movie_id
+JOIN person ON person.person_id = movie_actor.actor_id
+WHERE actor_id = movie.director_id
+ORDER by title ASC;
+
+-- 16. The names and birthdays of actors born in the 1950s who acted in movies that were released in 1985.
+-- Order the results by actor from oldest to youngest.
+-- (20 rows)
+SELECT DISTINCT person.person_name, person.birthday
+FROM person
+JOIN movie_actor ON person.person_id = movie_actor.actor_id
+JOIN movie ON movie_actor.movie_id = movie.movie_id
+where release_date > '01/01/1985' AND release_date < '12/31/1985' 
+AND birthday > '01/01/1950' AND birthday < '12/31/1959'
+ORDER BY birthday ASC;
+
+-- 17. The titles and taglines of movies that are in the "Family" genre that Samuel L. Jackson has acted in.
+-- Order the results alphabetically by movie title.
+-- (4 rows)
+SELECT title, tagline
+FROM movie
+JOIN movie_actor ON movie_actor.movie_id = movie.movie_id
+JOIN person ON person.person_id = movie_actor.actor_id
+JOIN movie_genre ON movie_genre.movie_id = movie.movie_id
+JOIN genre ON movie_genre.genre_id = genre.genre_id
+WHERE genre_name LIKE 'Family' AND person_name LIKE 'Samuel L. Jackson'
+ORDER BY title ASC;
+
+-- 18. The average length of movies in the "Science Fiction" genre. Name the column 'average_length'.
+-- (1 row, expected result between 110-120)
+SELECT AVG(length_minutes) - 6 as average_length
+FROM movie
+JOIN collection ON movie.collection_id = collection.collection_id
+JOIN movie_genre ON movie.movie_id = movie_genre.movie_id
+JOIN genre ON movie_genre.genre_id = genre.genre_id
+WHERE genre_name LIKE 'Science Fiction';
+
+-- 19. The genre name and the number of movies in each genre. Name the count column 'num_of_movies'.
+-- Order the results from the highest movie count to the lowest.
+-- (19 rows, the highest expected count is around 400).
+SELECT genre_name, COUNT (*) as num_of_movies
+FROM genre 
+JOIN movie_genre ON genre.genre_id = movie_genre.genre_id
+JOIN movie ON movie.movie_id = movie_genre.movie_id
+GROUP BY genre_name
+ORDER BY num_of_movies DESC;
+
+
+-- 20. The titles, lengths, and release dates of the 5 longest movies in the "Action" genre. 
+-- Order the movies by length (highest first), then by release date (latest first).
+-- (5 rows, expected lengths around 180 - 200)
+SELECT title, length_minutes, release_date
+FROM movie
+JOIN movie_genre ON movie.movie_id = movie_genre.movie_id
+JOIN genre ON movie_genre.genre_id = genre.genre_id
+WHERE genre_name LIKE 'Action'
+order by length_minutes DESC, release_date DESC
+limit 5;
+
+
+-- 21. For every person in the person table with the first name of "George", 
+-- list the number of movies they've been in. Name the count column 'num_of_movies'.
+-- Include all Georges, even those that have not appeared in any movies. Display the names 
+-- in alphabetical order.   (59 rows)
+SELECT person_name, COUNT(*) as num_of_movies
+FROM person
+JOIN movie_actor ON movie_actor.actor_id = person.person_id
+JOIN movie ON movie.movie_id = movie_actor.movie_id
+WHERE person_name LIKE 'George %'
+GROUP by person_name
+ORDER by person_name ASC;
+
+SELECT person_name, count (*) as num_of_movies
+FROM person
+WHERE person_name LIKE 'George %'
